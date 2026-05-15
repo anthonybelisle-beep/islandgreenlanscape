@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Gallery | Island Green Services — Campbell River</title>
+  <meta name="description" content="Browse completed landscaping, fencing, irrigation, excavating, and property maintenance projects by Island Green Services across Campbell River and Vancouver Island.">
+  <link rel="canonical" href="https://islandgreenservices.ca/gallery.html">
+  <meta property="og:title" content="Project Gallery | Island Green Services">
+  <meta property="og:description" content="See our completed projects across Campbell River and Vancouver Island — landscaping, fencing, irrigation, retaining walls, and more.">
+  <meta property="og:url" content="https://islandgreenservices.ca/gallery.html">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Gallery page specific */
+    .gallery-page-hero {
+      background: var(--charcoal);
+      padding-top: 96px;
+      padding-bottom: 3rem;
+    }
+    .gallery-page-hero .label { margin-bottom: 0.6rem; }
+    .gallery-page-hero h1 { color: var(--white); margin-bottom: 0.9rem; }
+    .gallery-page-hero p { color: rgba(255,255,255,0.6); font-size: 1.05rem; max-width: 56ch; }
+
+    /* Filter tabs */
+    .gallery-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-block: 2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    .filter-btn {
+      font-family: var(--font-head);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .filter-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .filter-btn.active { background: var(--orange); border-color: var(--orange); color: var(--white); }
+
+    /* Masonry grid */
+    .masonry {
+      columns: 3;
+      column-gap: 14px;
+    }
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 14px;
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--charcoal-mid);
+    }
+    .masonry-item img {
+      width: 100%;
+      display: block;
+      transition: transform 0.45s ease;
+    }
+    .masonry-item:hover img { transform: scale(1.04); }
+    .masonry-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity var(--transition);
+      display: flex; align-items: flex-end;
+      padding: 1rem 1.1rem;
+    }
+    .masonry-item:hover .masonry-overlay { opacity: 1; }
+    .masonry-label {
+      font-family: var(--font-head);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .masonry-cat {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange);
+      background: rgba(224,112,32,0.15);
+      border: 1px solid rgba(224,112,32,0.3);
+      border-radius: 999px;
+      padding: 0.15rem 0.6rem;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    /* Hidden items when filtered */
+    .masonry-item.hidden {
+      display: none;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.92);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-inner {
+      position: relative;
+      max-width: 1100px;
+      max-height: 90vh;
+      width: 100%;
+    }
+    .lightbox-inner img {
+      width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: var(--radius);
+      display: block;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -2.5rem; right: 0;
+      background: none; border: none;
+      color: white; font-size: 1.8rem;
+      cursor: pointer; line-height: 1;
+      opacity: 0.7; transition: opacity var(--transition);
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .lightbox-caption {
+      margin-top: 0.75rem;
+      text-align: center;
+      font-family: var(--font-head);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      border: none; color: white;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      cursor: pointer; font-size: 1.2rem;
+      display: grid; place-items: center;
+      transition: background var(--transition);
+    }
+    .lightbox-nav:hover { background: var(--orange); }
+    .lightbox-prev { left: -3.5rem; }
+    .lightbox-next { right: -3.5rem; }
+
+    @media (max-width: 900px) {
+      .masonry { columns: 2; }
+      .lightbox-prev { left: -2.5rem; }
+      .lightbox-next { right: -2.5rem; }
+    }
+    @media (max-width: 540px) {
+      .masonry { columns: 1; }
+      .lightbox-prev, .lightbox-next { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 6 4 10c0 3 1.5 5.5 4 7v3h8v-3c2.5-1.5 4-4 4-7 0-4-4-8-8-8z"/></svg>
+      </div>
+      Island Green Services
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="gallery.html" class="active">Gallery</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="tel:2502043335" class="nav-phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.23 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+      250-204-3335
+    </a>
+    <div class="nav-social">
+      <a href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+      </a>
+      <a href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+    </div>
+    <a href="contact.html" class="btn btn-primary nav-cta">Get a Free Quote</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" id="mobileClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <a href="index.html">Home</a>
+  <a href="services.html">Services</a>
+  <a href="gallery.html">Gallery</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" class="btn btn-primary" style="margin-top:1rem;">Get a Free Quote</a>
+</div>
+
+<!-- HERO -->
+<div class="gallery-page-hero">
+  <div class="container">
+    <span class="label">Our Work</span>
+    <h1>Project Gallery</h1>
+    <p>19+ years of completed projects across Campbell River and Vancouver Island — browse by category below.</p>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section style="background:var(--white); padding-block: 3rem 5rem;">
+  <div class="container">
+
+    <!-- Filter Buttons -->
+    <div class="gallery-filters">
+      <button class="filter-btn active" data-filter="all">All Projects</button>
+      <button class="filter-btn" data-filter="landscaping">Landscaping</button>
+      <button class="filter-btn" data-filter="fencing">Fencing</button>
+      <button class="filter-btn" data-filter="irrigation">Irrigation</button>
+      <button class="filter-btn" data-filter="excavating">Excavating</button>
+      <button class="filter-btn" data-filter="retaining">Retaining Walls</button>
+      <button class="filter-btn" data-filter="commercial">Commercial</button>
+    </div>
+
+    <!-- Masonry Grid -->
+    <div class="masonry" id="masonryGrid">
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Garden Design & Planting">
+        <img src="Images/Flowers2.jpg" alt="Garden design and planting — Island Green Services Campbell River" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Garden Design &amp; Planting</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="fencing" data-label="Cedar Privacy Fencing">
+        <img src="Images/20210924_121830-1-768x576.jpg" alt="Cedar fencing and landscaping — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Fencing</span><span class="masonry-label">Cedar Privacy Fencing</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Artificial Turf Installation">
+        <img src="Images/Grass2.jpg" alt="Artificial turf installation — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Artificial Turf Installation</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="fencing" data-label="Cedar Board Fence">
+        <img src="Images/Fencing1.jpg" alt="Cedar board fencing — Island Green Services Vancouver Island" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Fencing</span><span class="masonry-label">Cedar Board Fence</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="fencing" data-label="Long Cedar Privacy Fence">
+        <img src="Images/Fencing2.jpg" alt="Long cedar privacy fence — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Fencing</span><span class="masonry-label">Long Cedar Privacy Fence</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="fencing" data-label="Modern Metal Panel Fencing">
+        <img src="Images/Fencing3.jpg" alt="Modern metal panel fencing — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Fencing</span><span class="masonry-label">Modern Metal Panel Fencing</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Residential Turf & Landscaping">
+        <img src="Images/Grass1.jpg" alt="Residential turf and landscaping — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Residential Turf &amp; Landscaping</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="irrigation" data-label="Irrigation System Installation">
+        <img src="Images/Irrigation1.jpg" alt="Underground irrigation installation — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Irrigation</span><span class="masonry-label">Irrigation System Installation</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="irrigation" data-label="Irrigation Trenching & Piping">
+        <img src="Images/Irrigation2.jpg" alt="Irrigation trenching and piping — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Irrigation</span><span class="masonry-label">Irrigation Trenching &amp; Piping</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="excavating" data-label="Commercial Excavating">
+        <img src="Images/Equipment.jpg" alt="Commercial excavating — Island Green Services Campbell River" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Excavating</span><span class="masonry-label">Commercial Excavating</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="excavating" data-label="Site Preparation & Trenching">
+        <img src="Images/Excavating Services1.jpg" alt="Site preparation and trenching — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Excavating</span><span class="masonry-label">Site Preparation &amp; Trenching</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="retaining" data-label="Retaining Wall & Pathway">
+        <img src="Images/Front Pathway & Retaining Wall1.jpg" alt="Retaining wall and pathway — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Retaining Walls</span><span class="masonry-label">Retaining Wall &amp; Pathway</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="retaining" data-label="Retaining Wall Construction">
+        <img src="Images/Front Pathway & Retaining Wall2.jpg" alt="Retaining wall construction — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Retaining Walls</span><span class="masonry-label">Retaining Wall Construction</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="retaining" data-label="Block Retaining Wall & Steps">
+        <img src="Images/Front Pathway & Retaining Wall3.jpg" alt="Block retaining wall and steps — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Retaining Walls</span><span class="masonry-label">Block Retaining Wall &amp; Steps</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Garden Design & Feature Rock">
+        <img src="Images/Flowers.jpg" alt="Garden design with feature rock — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Garden Design &amp; Feature Rock</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Pathway & Lawn Installation">
+        <img src="Images/Pathway.jpg" alt="Pathway and lawn installation — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Pathway &amp; Lawn Installation</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Property Maintenance">
+        <img src="Images/Maintenance1.jpg" alt="Property maintenance — Island Green Services Campbell River" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Property Maintenance</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="New Build Landscaping">
+        <img src="Images/Maintenance2.jpg" alt="New build landscaping — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">New Build Landscaping</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Mulch & Planting Install">
+        <img src="Images/Maintenance3.jpg" alt="Mulch and planting installation — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Mulch &amp; Planting Install</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="landscaping" data-label="Lawn & Garden Maintenance">
+        <img src="Images/Maintenance 4.jpg" alt="Lawn and garden maintenance — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Landscaping</span><span class="masonry-label">Lawn &amp; Garden Maintenance</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Commercial Grounds">
+        <img src="Images/Commercial Projects1.jpg" alt="Commercial grounds maintenance — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Commercial Grounds</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Commercial Landscaping">
+        <img src="Images/Commercial Projects2.jpg" alt="Commercial landscaping — Island Green Services Campbell River" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Commercial Landscaping</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Multi-Family Property">
+        <img src="Images/Commercial Projects3.jpg" alt="Multi-family property landscaping — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Multi-Family Property</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Strata Grounds">
+        <img src="Images/Commercial Projects4.jpg" alt="Strata grounds — Island Green Services Vancouver Island" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Strata Grounds</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Commercial Site Work">
+        <img src="Images/Commercial Projects5.jpg" alt="Commercial site work — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Commercial Site Work</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Large Commercial Project">
+        <img src="Images/Commercial Projects6.jpg" alt="Large commercial project — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Large Commercial Project</span></div>
+        </div>
+      </div>
+
+      <div class="masonry-item" data-cat="commercial" data-label="Commercial Landscaping">
+        <img src="Images/Comercial Project 7.jpg" alt="Commercial landscaping project — Island Green Services" loading="lazy">
+        <div class="masonry-overlay">
+          <div><span class="masonry-cat">Commercial</span><span class="masonry-label">Commercial Landscaping</span></div>
+        </div>
+      </div>
+
+    </div><!-- end masonry -->
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container cta-inner">
+    <div class="cta-text">
+      <h2>Ready to Start Your Project?</h2>
+      <p>Get a free, no-obligation quote from Campbell River's most trusted outdoor services team.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="contact.html" class="btn btn-primary btn-lg">Get a Free Quote</a>
+      <a href="tel:2502043335" class="btn btn-outline btn-lg">Call 250-204-3335</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="footer-logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 6 4 10c0 3 1.5 5.5 4 7v3h8v-3c2.5-1.5 4-4 4-7 0-4-4-8-8-8z"/></svg></div>
+          <span class="footer-logo-text">Island Green Services</span>
+        </div>
+        <p>Campbell River's trusted landscaping and property services team — serving Vancouver Island since 2006.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services.html#landscaping">Landscaping</a></li>
+          <li><a href="services.html#excavating">Excavating</a></li>
+          <li><a href="services.html#irrigation">Irrigation</a></li>
+          <li><a href="services.html#fencing">Fencing</a></li>
+          <li><a href="services.html#maintenance">Property Maintenance</a></li>
+          <li><a href="services.html#snow">Snow Removal</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="gallery.html">Project Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-row"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.23 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg><a href="tel:2502043335">250-204-3335</a></div>
+        <div class="footer-contact-row"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:IslandGreen2009@gmail.com">IslandGreen2009@gmail.com</a></div>
+        <div class="footer-contact-row"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Campbell River, BC</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Island Green Services. All rights reserved.</span>
+      <span>Serving Campbell River &amp; Vancouver Island</span>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close">&#x2715;</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous photo">&#8592;</button>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next photo">&#8594;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<script src="main.js"></script>
+<script>
+  // Filter logic
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const items = document.querySelectorAll('.masonry-item');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      items.forEach(item => {
+        if (filter === 'all' || item.dataset.cat === filter) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // Lightbox logic
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const lightboxPrev = document.getElementById('lightboxPrev');
+  const lightboxNext = document.getElementById('lightboxNext');
+
+  let currentIndex = 0;
+  let visibleItems = [];
+
+  function openLightbox(index) {
+    visibleItems = [...document.querySelectorAll('.masonry-item:not(.hidden)')];
+    currentIndex = index;
+    showImage(currentIndex);
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function showImage(index) {
+    const item = visibleItems[index];
+    const img = item.querySelector('img');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxCaption.textContent = item.dataset.label || '';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    lightboxImg.src = '';
+  }
+
+  items.forEach((item, i) => {
+    item.addEventListener('click', () => {
+      visibleItems = [...document.querySelectorAll('.masonry-item:not(.hidden)')];
+      const visIndex = visibleItems.indexOf(item);
+      openLightbox(visIndex);
+    });
+  });
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+  lightboxNext.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % visibleItems.length;
+    showImage(currentIndex);
+  });
+
+  lightboxPrev.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length;
+    showImage(currentIndex);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % visibleItems.length; showImage(currentIndex); }
+    if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length; showImage(currentIndex); }
+  });
+</script>
+</body>
+</html>
